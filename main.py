@@ -16,6 +16,16 @@ async def login():
     return "We don't allow cross login to steamcommunity.com <a href='/'>Back</a>"
 
 
+@app.route("/market/")
+@app.route("/discussions/")
+@app.route("/my/")
+@app.route("/id/")
+@app.route("/account/")
+@app.route("/profiles/")
+async def home():
+    return "We don't support other pages of steamcommunity.com <a href='/'>Back</a>"
+
+
 @app.route("/dl-workshop/<int:app_id>/<int:workshop_id>")
 async def download_workshop(app_id, workshop_id):
     path = await workshop_download(app_id, workshop_id)
