@@ -11,6 +11,11 @@ async def index():
     return redirect("/workshop/")
 
 
+@app.route("/login/home/")
+async def login():
+    return "We don't allow cross login to steamcommunity.com <a href='/'>Back</a>"
+
+
 @app.route("/dl-workshop/<int:app_id>/<int:workshop_id>")
 async def download_workshop(app_id, workshop_id):
     path = await workshop_download(app_id, workshop_id)
