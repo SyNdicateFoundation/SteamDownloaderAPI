@@ -30,34 +30,34 @@ func main() {
 		if err := s.Install(); err != nil {
 			log.Printf("⚠️ SteamCMD installation warning: %v", err)
 		}
+	}
 
-		router := gin.Default()
+	router := gin.Default()
 
-		h := handler.New(s)
-		defer h.Cleanup()
+	h := handler.New(s)
+	defer h.Cleanup()
 
-		router.GET("/", func(c *gin.Context) {
-			c.Redirect(http.StatusMovedPermanently, "/workshop/")
-		})
+	router.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/workshop/")
+	})
 
-		router.GET("/api/workshop/:app_id/:workshop_id", h.DownloadWorkshopHandler)
-		router.GET("/api/collection/:app_id/:collection_id", h.DownloadCollectionHandler)
+	router.GET("/api/workshop/:app_id/:workshop_id", h.DownloadWorkshopHandler)
+	router.GET("/api/collection/:app_id/:collection_id", h.DownloadCollectionHandler)
 
-		router.Any("/workshop/*path", h.SteamProxyHandler)
-		router.Any("/app/*path", h.SteamProxyHandler)
-		router.Any("/sharedfiles/*path", h.SteamProxyHandler)
+	router.Any("/workshop/*path", h.SteamProxyHandler)
+	router.Any("/app/*path", h.SteamProxyHandler)
+	router.Any("/sharedfiles/*path", h.SteamProxyHandler)
 
-		unsupportedRoutes := []string{
-			"/login/home/", "/market/", "/discussions/", "/my/",
-			"/id/", "/account/", "/profiles/",
-		}
-		for _, route := range unsupportedRoutes {
-			router.GET(route, h.UnsupportedPageHandler)
-		}
+	unsupportedRoutes := []string{
+		"/login/home/", "/market/", "/discussions/", "/my/",
+		"/id/", "/account/", "/profiles/",
+	}
+	for _, route := range unsupportedRoutes {
+		router.GET(route, h.UnsupportedPageHandler)
+	}
 
-		log.Printf("🚀 Server starting on http://0.0.0.0:%s", *port)
-		if err := router.Run(":" + *port); err != nil {
-			log.Fatalf("❌ Failed to start server: %v", err)
-		}
+	log.Printf("🚀 Server starting on http://0.0.0.0:%s", *port)
+	if err := router.Run(":" + *port); err != nil {
+		log.Fatalf("❌ Failed to start server: %v", err)
 	}
 }
