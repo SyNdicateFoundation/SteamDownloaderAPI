@@ -1,5 +1,0 @@
-Quart~=0.19.5
-aiofiles~=23.2.1
-httpx~=0.27.0
-aiozipstream~=0.4
-async-cache~=1.1.1
