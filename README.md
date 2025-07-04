@@ -1,7 +1,7 @@
 # SteamDownloaderAPI
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/SyNdicateFoundation/SteamDownloaderAPI)](https://goreportcard.com/report/github.com/SyNdicateFoundation/SteamDownloaderAPI)
-[![Go Build](https://github.com/SyNdicateFoundation/SteamDownloaderAPI/actions/workflows/go.yml/badge.svg)](https://github.com/SyNdicateFoundation/SteamDownloaderAPI/actions/workflows/go.yml)
+[![Go Build](https://github.com/SyNdicateFoundation/SteamDownloaderAPI/actions/workflows/go-build.yml/badge.svg)](https://github.com/SyNdicateFoundation/SteamDownloaderAPI/actions/workflows/go-build.yml)
 
 A powerful Go-based reverse proxy for the Steam Workshop that dynamically injects download buttons into workshop and collection pages, allowing you to download items directly using a backend `steamcmd` instance.
 
