@@ -1,3 +1,5 @@
+<img src="https://i.imgur.com/lOKTpDK.png" align="center" width="256">
+
 # SteamDownloaderAPI
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/SyNdicateFoundation/SteamDownloaderAPI)](https://goreportcard.com/report/github.com/SyNdicateFoundation/SteamDownloaderAPI)
