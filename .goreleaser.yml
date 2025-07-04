@@ -1,0 +1,45 @@
+# .goreleaser.yml
+project_name: steamdownloaderapi
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - # This build configuration is for your application
+    id: steamdownloaderapi
+    # This line is crucial - it tells GoReleaser where your main function is.
+    main: ./cmd/main.go
+    binary: steamdownloaderapi
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin # macOS
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else }}{{ .Arch }}{{ end }}
+    format: tar.gz
+    files:
+      - README.md
+      - LICENSE*
+
+checksum:
+  name_template: 'checksums.txt'
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - 'Merge pull request'
+      - 'Merge branch'
