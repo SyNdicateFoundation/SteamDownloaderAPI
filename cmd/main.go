@@ -30,7 +30,6 @@ func init() {
 }
 
 func main() {
-
 	s, err := steamcmd.New(steamCmdPath, steamUser, steamPassword)
 	if err != nil {
 		log.Fatalf("❌ SteamCMD initialization error: %v", err)
