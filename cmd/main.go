@@ -5,6 +5,8 @@ import (
 	"log"
 	"net"
 	"net/http"
+
+	_ "embed"
 	"os"
 
 	"github.com/SyNdicateFoundation/SteamDownloaderAPI/internal/handler"
@@ -29,6 +31,9 @@ func init() {
 	flag.Parse()
 }
 
+//go:embed favicon.ico
+var favicon []byte
+
 func main() {
 	s, err := steamcmd.New(steamCmdPath, steamUser, steamPassword)
 	if err != nil {
@@ -45,13 +50,13 @@ func main() {
 		}
 	}
 
-	router := gin.Default()
-
 	gin.SetMode(gin.ReleaseMode)
 
 	if debugMode {
 		gin.SetMode(gin.DebugMode)
 	}
+
+	router := gin.Default()
 
 	h := handler.New(s)
 	defer h.Cleanup()
@@ -65,7 +70,12 @@ func main() {
 
 	router.Any("/workshop/*path", h.SteamProxyHandler)
 	router.Any("/app/*path", h.SteamProxyHandler)
+	router.Any("/public/*path", h.SteamProxyHandler)
 	router.Any("/sharedfiles/*path", h.SteamProxyHandler)
+
+	router.GET("favicon.ico", func(c *gin.Context) {
+		c.Data(http.StatusOK, "image/x-icon", favicon)
+	})
 
 	unsupportedRoutes := []string{
 		"/login/home/", "/market/", "/discussions/", "/my/",

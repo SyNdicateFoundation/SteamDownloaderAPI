@@ -53,10 +53,6 @@ func (h *SteamDownloaderAPI) SteamProxyHandler(c *gin.Context) {
 	}
 
 	proxy.ModifyResponse = func(res *http.Response) error {
-		if !strings.Contains(res.Header.Get("Content-Type"), "text/html") {
-			return nil
-		}
-
 		body, err := io.ReadAll(res.Body)
 		if err != nil {
 			return fmt.Errorf("failed to read response body: %w", err)
@@ -64,10 +60,25 @@ func (h *SteamDownloaderAPI) SteamProxyHandler(c *gin.Context) {
 
 		defer res.Body.Close()
 
+		if !strings.Contains(res.Header.Get("Content-Type"), "text/html") {
+			body = bytes.ReplaceAll(body,
+				[]byte("https://steamcommunity.com/workshop/ajaxfindworkshops"),
+				[]byte("/workshop/ajaxfindworkshops"),
+			)
+
+			res.Body = io.NopCloser(bytes.NewReader(body))
+			return nil
+		}
+
 		doc, err := goquery.NewDocumentFromReader(bytes.NewReader(body))
 		if err != nil {
 			return fmt.Errorf("failed to parse HTML: %w", err)
 		}
+
+		titleElm := doc.Find("title")
+		title := titleElm.Text()
+		title = strings.Replace(title, "Steam Community", "SteamDownloaderAPI", 1)
+		titleElm.SetText(title)
 
 		replacedCollection := true
 
@@ -78,6 +89,10 @@ func (h *SteamDownloaderAPI) SteamProxyHandler(c *gin.Context) {
 				dlBtn := fmt.Sprintf(`<div><a href="/api/workshop/%s/%s" class="btn_darkred_white_innerfade btn_border_2px btn_medium" style="position: relative"> <div class="followIcon"></div> <span class="subscribeText"> <div>Download</div> </span> </a> </div>`, appID, workshopID)
 				s.Parent().Parent().AppendHtml(dlBtn)
 			}
+		})
+
+		doc.Find(`span[class="valve_links"]`).Each(func(i int, s *goquery.Selection) {
+			s.AppendHtml(` |  <a style="color: #1497cb;font-weight: bold;font-size: medium;" href="https://github.com/SyNdicateFoundation/SteamDownloaderAPI" target="_blank">SteamDownloaderAPI GitHub</a>`)
 		})
 
 		doc.Find(".subscribe[onclick*='SubscribeCollection']").Each(func(i int, s *goquery.Selection) {
