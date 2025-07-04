@@ -15,9 +15,11 @@ import (
 type SteamCMD struct {
 	InstallPath string
 	ExePath     string
+	username    string
+	password    string
 }
 
-func New(installPath string) (*SteamCMD, error) {
+func New(installPath string, username string, password string) (*SteamCMD, error) {
 	exeName := "steamcmd"
 	if runtime.GOOS == "windows" {
 		exeName += ".exe"
@@ -33,6 +35,8 @@ func New(installPath string) (*SteamCMD, error) {
 	return &SteamCMD{
 		InstallPath: installPath,
 		ExePath:     absExePath,
+		username:    username,
+		password:    password,
 	}, nil
 }
 
@@ -99,10 +103,17 @@ func (s *SteamCMD) finalizeInstallation() error {
 }
 
 func (s *SteamCMD) DownloadWorkshopItem(appID, workshopID int, validate bool) error {
-	args := []string{
-		"+login", "anonymous",
-		"+workshop_download_item", fmt.Sprint(appID), fmt.Sprint(workshopID),
+	loginInfo := []string{"+login", "anonymous"}
+
+	if s.username != "" {
+		loginInfo = append(loginInfo, "+login", s.username, s.password)
 	}
+
+	args := append(
+		loginInfo,
+		[]string{"+workshop_download_item", fmt.Sprint(appID), fmt.Sprint(workshopID)}...,
+	)
+
 	if validate {
 		args = append(args, "validate")
 	}
@@ -114,13 +125,12 @@ func (s *SteamCMD) DownloadWorkshopItem(appID, workshopID int, validate bool) er
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-
-		log.Printf("   Retrying download for WorkshopID %d...", workshopID)
 		time.Sleep(2 * time.Second)
 		if errRetry := cmd.Run(); errRetry != nil {
 			return fmt.Errorf("steamcmd execution failed after retry: %w", errRetry)
 		}
 	}
+
 	return nil
 }
 

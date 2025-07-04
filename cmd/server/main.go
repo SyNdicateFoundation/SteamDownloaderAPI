@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"net"
 	"net/http"
 	"os"
 
@@ -11,19 +12,32 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func main() {
-	steamCmdPath := flag.String("steamcmdpath", "steamcmd", "Path to the steamcmd directory")
-	port := flag.String("port", "8080", "Port for the server to listen on")
-	install := flag.Bool("install", true, "Install or update steamcmd on startup")
-	flag.Parse()
+var (
+	steamCmdPath, listenHost, listenPort, steamUser, steamPassword string
+	installSteamCmd, debugMode                                     bool
+)
 
-	s, err := steamcmd.New(*steamCmdPath)
+func init() {
+	flag.StringVar(&steamCmdPath, "steamcmdpath", "steamcmd", "Path to the steamcmd directory")
+	flag.BoolVar(&installSteamCmd, "installsteamcmd", true, "Install steamcmd")
+	flag.BoolVar(&debugMode, "debug", false, "Install steamcmd")
+	flag.StringVar(&listenHost, "listenhost", "0.0.0.0", "Hostname for the server to listen on")
+	flag.StringVar(&listenPort, "listenport", "8080", "Port for the server to listen on")
+	flag.StringVar(&steamUser, "steamuser", "", "Steam username")
+	flag.StringVar(&steamPassword, "steampassword", "", "Steam password")
+
+	flag.Parse()
+}
+
+func main() {
+
+	s, err := steamcmd.New(steamCmdPath, steamUser, steamPassword)
 	if err != nil {
 		log.Fatalf("❌ SteamCMD initialization error: %v", err)
 	}
 
-	if *install {
-		if err := os.MkdirAll(*steamCmdPath, 0755); err != nil {
+	if installSteamCmd {
+		if err := os.MkdirAll(steamCmdPath, 0755); err != nil {
 			log.Fatalf("❌ Failed to create steamcmd directory: %v", err)
 		}
 
@@ -33,6 +47,12 @@ func main() {
 	}
 
 	router := gin.Default()
+
+	gin.SetMode(gin.ReleaseMode)
+
+	if debugMode {
+		gin.SetMode(gin.DebugMode)
+	}
 
 	h := handler.New(s)
 	defer h.Cleanup()
@@ -56,8 +76,11 @@ func main() {
 		router.GET(route, h.UnsupportedPageHandler)
 	}
 
-	log.Printf("🚀 Server starting on http://0.0.0.0:%s", *port)
-	if err := router.Run(":" + *port); err != nil {
+	listenAddr := net.JoinHostPort(listenHost, listenPort)
+
+	log.Printf("🚀 Server starting on http://%s", listenAddr)
+
+	if err := router.Run(listenAddr); err != nil {
 		log.Fatalf("❌ Failed to start server: %v", err)
 	}
 }
