@@ -1,6 +1,7 @@
-<img src="https://i.imgur.com/lOKTpDK.png" align="center" width="256">
+<h1 align="center">
+<img src="https://i.imgur.com/kdyrovr.png" align="center" width="256">
+</h1>
 
-# SteamDownloaderAPI
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/SyNdicateFoundation/SteamDownloaderAPI)](https://goreportcard.com/report/github.com/SyNdicateFoundation/SteamDownloaderAPI)
 [![Go Build](https://github.com/SyNdicateFoundation/SteamDownloaderAPI/actions/workflows/go-build.yml/badge.svg)](https://github.com/SyNdicateFoundation/SteamDownloaderAPI/actions/workflows/go-build.yml)
